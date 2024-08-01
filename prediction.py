@@ -40,6 +40,7 @@ if __name__ == "__main__":
     client = TestClient(app)
 
     def test_predict():
+        # Test POST request
         data = {
             "Cost_of_Living_Index": 80.0,
             "Rent_Index": 75.0,
@@ -50,5 +51,10 @@ if __name__ == "__main__":
         response = client.post("/predict", json=data)
         assert response.status_code == 200
         assert "prediction" in response.json()
+
+        # Test GET request
+        response = client.get("/predict")
+        assert response.status_code == 405
+        assert response.json() == {"detail": "Method Not Allowed"}
 
     test_predict()
