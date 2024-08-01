@@ -2,7 +2,7 @@ from fastapi import FastAPI
 import numpy as np
 from joblib import load
 from pydantic import BaseModel
-
+from fastapi.testclient import TestClient
 
 # Defining the input data model
 class PredictInput(BaseModel):
@@ -20,8 +20,6 @@ multivariate_model = load('multivariate_model.joblib')
 def read_root():
     return {"message": "Welcome to the Cost of Living Prediction API!"}
 
-@app.get("/predict")
-
 @app.post("/predict")
 def predict(data: PredictInput):
     # Converting the input data to a numpy array
@@ -37,3 +35,20 @@ def predict(data: PredictInput):
     prediction = multivariate_model.predict(input_data)
 
     return {"prediction": float(prediction[0])}
+
+if __name__ == "__main__":
+    client = TestClient(app)
+
+    def test_predict():
+        data = {
+            "Cost_of_Living_Index": 80.0,
+            "Rent_Index": 75.0,
+            "Groceries_Index": 85.0,
+            "Restaurant_Price_Index": 90.0,
+            "Local_Purchasing_Power_Index": 70.0
+        }
+        response = client.post("/predict", json=data)
+        assert response.status_code == 200
+        assert "prediction" in response.json()
+
+    test_predict()
