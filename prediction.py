@@ -20,6 +20,8 @@ multivariate_model = load('multivariate_model.joblib')
 def read_root():
     return {"message": "Welcome to the Cost of Living Prediction API!"}
 
+@app.get("/predict")
+
 @app.post("/predict")
 def predict(data: PredictInput):
     # Converting the input data to a numpy array
