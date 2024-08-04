@@ -38,8 +38,26 @@ def predict(data: PredictInput):
     return {"prediction": float(prediction[0])}
 
 @app.get("/predict")
-def predict_get():
-    return {"detail": "Welcome"}, 405
+def predict_get(
+    Cost_of_Living_Index: float,
+    Rent_Index: float,
+    Groceries_Index: float,
+    Restaurant_Price_Index: float,
+    Local_Purchasing_Power_Index: float
+):
+    # Converting the input data to a numpy array
+    input_data = np.array([
+        Cost_of_Living_Index,
+        Rent_Index,
+        Groceries_Index,
+        Restaurant_Price_Index,
+        Local_Purchasing_Power_Index
+    ]).reshape(1, -1)
+
+    # Making the prediction
+    prediction = multivariate_model.predict(input_data)
+
+    return {"prediction": float(prediction[0])}
 
 @app.get("/favicon.ico")
 async def favicon():
@@ -62,8 +80,10 @@ if __name__ == "__main__":
         assert "prediction" in response.json()
 
         # Test GET request
-        response = client.get("/predict")
-        assert response.status_code == 405
-        assert response.json() == {"detail": "Welcome"}
+        response = client.get(
+            "/predict?Cost_of_Living_Index=80.0&Rent_Index=75.0&Groceries_Index=85.0&Restaurant_Price_Index=90.0&Local_Purchasing_Power_Index=70.0"
+        )
+        assert response.status_code == 200
+        assert "prediction" in response.json()
 
     test_predict()
