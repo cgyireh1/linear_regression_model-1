@@ -2,7 +2,8 @@ from fastapi import FastAPI
 import numpy as np
 from joblib import load
 from pydantic import BaseModel
-from fastapi.testclient import TestClient
+from fastapi.responses import FileResponse
+import os
 
 # Defining the input data model
 class PredictInput(BaseModel):
@@ -36,6 +37,14 @@ def predict(data: PredictInput):
 
     return {"prediction": float(prediction[0])}
 
+@app.get("/predict")
+def predict_get():
+    return {"detail": "Welcome"}, 405
+
+@app.get("/favicon.ico")
+async def favicon():
+    return FileResponse(os.path.join("static", "favicon.ico"))
+
 if __name__ == "__main__":
     client = TestClient(app)
 
@@ -55,6 +64,6 @@ if __name__ == "__main__":
         # Test GET request
         response = client.get("/predict")
         assert response.status_code == 405
-        assert response.json() == {"detail": "Method Not Allowed"}
+        assert response.json() == {"detail": "Welcome"}
 
     test_predict()
